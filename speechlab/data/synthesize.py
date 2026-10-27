@@ -68,13 +68,30 @@ def synth_noise(kind, n, seed=0):
     raise ValueError(f"未知噪声类型: {kind}")
 
 
+def make_train_cases(n=6, duration=2.0, snr_range=(0, 10), seed=1234):
+    """训练/验证用合成样本（S1 过拟合验证；S2 由真实数据集替代）。"""
+    rng = np.random.default_rng(seed)
+    kinds = ["white", "pink", "babble"]
+    cases = []
+    for i in range(n):
+        clean = synth_speech_like(duration, seed=seed + i)
+        kind = kinds[i % len(kinds)]
+        noise = synth_noise(kind, len(clean), seed=seed + 1000 + i)
+        snr_db = float(rng.uniform(*snr_range))
+        noisy, _ = mix(clean, noise, snr_db, seed=seed + 2000 + i)
+        cases.append(dict(clean=clean, noisy=noisy,
+                          meta=dict(snr_db=snr_db, noise_type=kind,
+                                    language="synth", sample_id=f"train_{i}")))
+    return cases
+
+
 def frozen_test_set(n_per_case=2, duration=2.0):
     """冻结的合成测试集：固定 seed，永不重生成（指标可比性的前提）。
 
     返回 list[dict]: clean/noisy/noise/meta{snr_db, noise_type, language, sample_id}
     """
-    import zlib
     cases = []
+    import zlib
     for snr in [0.0, 5.0, 10.0]:
         for kind in ["white", "pink", "babble"]:
             for i in range(n_per_case):

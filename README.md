@@ -2,8 +2,8 @@
 
 面向中文真实场景的语音增强研究仓库：从传统信号处理到预训练大模型迁移。
 
-> 当前进度：**S0 垂直切片已完成**（统一接口 + 注册表 + 谱门控基线 + 合成评测集 + 指标汇总）。
-> 路线图：S1 深度模型训练 → S2 VoiceBank-DEMAND 真实数据 → S3 中英文落差实验（主创新）→ M4 阵列 → M6 水声迁移。
+> 当前进度：**S1 已完成**（S0 骨架 + tiny_gru 训练链路，过拟合验证通过）。
+> 路线图：S2 VoiceBank-DEMAND 真实数据 → S3 中英文落差实验（主创新）→ M4 阵列 → M6 水声迁移。
 
 ## 快速开始
 
@@ -11,8 +11,15 @@
 pip install -r requirements.txt
 python eval/run.py configs/exp/000_baseline.yaml
 # 输出 runs/000_baseline/scores.jsonl（逐样本明细）与 summary.csv（分组汇总）
+python train/run.py configs/exp/001_gru_overfit.yaml   # S1 训练冒烟（CPU约10分钟）
 python -m pytest tests/ -q
 ```
+
+## S1 训练链路验证（tiny_gru，659,713 参数）
+
+- 恒等基线 L1 损失 1.093 → 0.190（-83%）；训练样本 SNR 平均 **+8.8 dB**；
+- 未见测试集平均仅 +1.99 dB → 泛化差距直观可见，真实数据与验证集划分是 S2 的重点；
+- 注：掩蔽≤1 的模型存在理论残差（相位抵消处无法完全重建），故不以 loss→0 为判据。
 
 ## S0 基线结果（合成冒烟测试集，谱门控）
 
@@ -40,6 +47,7 @@ python -m pytest tests/ -q
 configs/          # 实验 YAML（一次实验=一个文件）
 speechlab/        # 包：data / dsp / baselines / models / engine / eval
 eval/run.py       # 评测入口
+train/run.py      # 训练入口
 tests/            # STFT 可逆性、混合 SNR 精度
 runs/             # 实验输出（gitignore）
 ```
