@@ -1,0 +1,19 @@
+seed: 1234
+data:
+  name: synth_overfit     # S1 冒烟：4个样本，验证训练链路
+  n_train: 4
+  duration: 2.0
+model:
+  name: tiny_gru
+  args:
+    hidden: 128
+    layers: 2
+train:
+  epochs: 600
+  batch: 2
+  lr: 0.0015
+  grad_clip: 5.0
+  log_every: 50
+eval:
+  metrics: [snr, si_sdr]
+output: runs/001_gru_overfit
