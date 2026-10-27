@@ -1,0 +1,11 @@
+seed: 42
+data:
+  name: frozen_synth       # S0 合成冒烟测试集；S2 换 voicebank_demand
+  n_per_case: 1            # 3档SNR×3类噪声×1 = 9 个样本
+model:
+  name: spectral_gate
+  args:
+    strength: 1.0
+eval:
+  metrics: [snr, si_sdr]
+output: runs/000_baseline

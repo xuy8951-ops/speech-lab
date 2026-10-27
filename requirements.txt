@@ -1,0 +1,8 @@
+numpy
+scipy
+torch
+pyyaml
+pytest
+# 可选指标（装不上则自动记 NaN，不中断评测）
+# pesq
+# pystoi

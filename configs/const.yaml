@@ -1,0 +1,5 @@
+sample_rate: 16000
+n_fft: 512        # 32ms @16k
+hop: 128          # 8ms
+window: hann
+freq_bins: 257

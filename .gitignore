@@ -1,0 +1,8 @@
+runs/
+__pycache__/
+*.pyc
+.pytest_cache/
+data/raw/
+*.wav
+!examples/*.wav
+.venv/
