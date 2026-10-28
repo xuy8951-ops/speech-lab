@@ -1,0 +1,37 @@
+name: Restore frozen manifests
+on:
+  push:
+    paths:
+      - '.github/workflows/restore_manifests.yml'
+permissions:
+  contents: write
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode and verify frozen manifests
+        run: |
+          python - <<'PY'
+          import base64, hashlib, lzma
+          from pathlib import Path
+          items = {
+              'voicebank_demand_test': ('data/manifests/voicebank_demand/test.jsonl', '48483b1f4adc051aee3129bb84023113f8b586cdfa4dab43cdb7dcce01b305fa'),
+              'voicebank_demand_multispk_train': ('data/manifests/voicebank_demand_multispk/train.jsonl', '91ce99d6de764a211b7c93fab5a4852fcb7efce3db2233a3fa3149d8a97bfa0c'),
+              'voicebank_demand_multispk_val': ('data/manifests/voicebank_demand_multispk/val.jsonl', '10123f37c1866e2988fc64d15e3f7089123a4990dd568f19d89a8091c48241fd'),
+          }
+          for name, (target, expected) in items.items():
+              packed = Path('.sync_payload', name + '.jsonl.xz.b64').read_bytes()
+              raw = lzma.decompress(base64.b64decode(packed))
+              actual = hashlib.sha256(raw).hexdigest()
+              assert actual == expected, (name, actual, expected)
+              Path(target).write_bytes(raw)
+              print(name, len(raw), actual)
+          PY
+      - name: Commit restored manifests
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/manifests/voicebank_demand/test.jsonl data/manifests/voicebank_demand_multispk/train.jsonl data/manifests/voicebank_demand_multispk/val.jsonl
+          git commit -m 'Add verified frozen VoiceBank-DEMAND manifests'
+          git push
