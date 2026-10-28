@@ -1,0 +1,35 @@
+seed: 2026
+data:
+  name: voicebank_demand
+  # 与 v2-v4 完全相同的训练、验证和冻结测试清单。
+  manifest_dir: data/manifests/voicebank_demand_multispk
+  val_manifest_dir: data/manifests/voicebank_demand
+  test_manifest_dir: data/manifests/voicebank_demand
+  validation: true
+  max_train: 128
+  max_val: 64
+model:
+  name: tiny_gru
+  args:
+    hidden: 128
+    layers: 2
+  checkpoint: runs/006_gru_voicebank_mag_irm/best.pt
+train:
+  epochs: 12
+  resume: true
+  batch: 8
+  lr: 0.001
+  grad_clip: 5.0
+  log_every: 1
+  # λ=0.25 来自验证集量级：v2 mag L1≈0.061，v4 IRM L1≈0.236。
+  loss:
+    name: mag_irm_l1
+    irm_weight: 0.25
+  early_stop:
+    metric: val_loss
+    mode: min
+    patience: 3
+    min_delta: 0.0001
+eval:
+  metrics: [snr, si_sdr, pesq, stoi]
+output: runs/006_gru_voicebank_mag_irm

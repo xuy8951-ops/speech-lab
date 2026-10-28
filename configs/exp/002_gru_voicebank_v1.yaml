@@ -1,0 +1,28 @@
+seed: 2026
+data:
+  name: voicebank_demand
+  manifest_dir: data/manifests/voicebank_demand
+  validation: true
+  # CPU 首个真实数据 v1：固定随机子集；删除两行即使用全部 train/val。
+  max_train: 128
+  max_val: 64
+model:
+  name: tiny_gru
+  args:
+    hidden: 128
+    layers: 2
+  checkpoint: runs/002_gru_voicebank_v1/best.pt
+train:
+  epochs: 12
+  batch: 8
+  lr: 0.001
+  grad_clip: 5.0
+  log_every: 1
+  early_stop:
+    metric: val_loss
+    mode: min
+    patience: 3
+    min_delta: 0.0001
+eval:
+  metrics: [snr, si_sdr, pesq, stoi]
+output: runs/002_gru_voicebank_v1

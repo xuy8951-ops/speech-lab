@@ -1,0 +1,31 @@
+seed: 2026
+data:
+  name: voicebank_demand
+  # 仅改变训练说话人：p227+p228；验证与测试清单和 v1 完全相同。
+  manifest_dir: data/manifests/voicebank_demand_multispk
+  val_manifest_dir: data/manifests/voicebank_demand
+  test_manifest_dir: data/manifests/voicebank_demand
+  validation: true
+  max_train: 128
+  max_val: 64
+model:
+  name: tiny_gru
+  args:
+    hidden: 128
+    layers: 2
+  checkpoint: runs/003_gru_voicebank_multispk/best.pt
+train:
+  epochs: 12
+  resume: true  # 无断点时从头开始；有 trainer_state.pt 时无损续训
+  batch: 8
+  lr: 0.001
+  grad_clip: 5.0
+  log_every: 1
+  early_stop:
+    metric: val_loss
+    mode: min
+    patience: 3
+    min_delta: 0.0001
+eval:
+  metrics: [snr, si_sdr, pesq, stoi]
+output: runs/003_gru_voicebank_multispk

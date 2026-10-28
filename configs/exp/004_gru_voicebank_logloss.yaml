@@ -1,0 +1,35 @@
+seed: 2026
+data:
+  name: voicebank_demand
+  # 与 v2 使用完全相同的训练、验证和冻结测试清单。
+  manifest_dir: data/manifests/voicebank_demand_multispk
+  val_manifest_dir: data/manifests/voicebank_demand
+  test_manifest_dir: data/manifests/voicebank_demand
+  validation: true
+  max_train: 128
+  max_val: 64
+model:
+  name: tiny_gru
+  args:
+    hidden: 128
+    layers: 2
+  checkpoint: runs/004_gru_voicebank_logloss/best.pt
+train:
+  epochs: 12
+  resume: true
+  batch: 8
+  lr: 0.001
+  grad_clip: 5.0
+  log_every: 1
+  # v3 唯一实验变量：线性幅度 L1 + 1.0 × 对数幅度 L1。
+  loss:
+    name: mag_log_l1
+    log_weight: 1.0
+  early_stop:
+    metric: val_loss
+    mode: min
+    patience: 3
+    min_delta: 0.0001
+eval:
+  metrics: [snr, si_sdr, pesq, stoi]
+output: runs/004_gru_voicebank_logloss
