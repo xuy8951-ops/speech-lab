@@ -52,16 +52,23 @@ class EvalRunner:
             key = (r["language"], r["noise_type"], r["snr_db"])
             groups.setdefault(key, []).append(r)
         summary_path = self.out_dir / "summary.csv"
-        with open(summary_path, "w", newline="") as f:
+
+        def make_line(label, group_rows):
+            line = [*label, len(group_rows)]
+            for metric in self.metric_names:
+                noisy_values = np.array([r[f"noisy_{metric}"] for r in group_rows], dtype=float)
+                enhanced_values = np.array([r[f"enhanced_{metric}"] for r in group_rows], dtype=float)
+                n = np.mean(noisy_values[~np.isnan(noisy_values)]) if np.isfinite(noisy_values).any() else float("nan")
+                e = np.mean(enhanced_values[~np.isnan(enhanced_values)]) if np.isfinite(enhanced_values).any() else float("nan")
+                line += [round(n, 3), round(e, 3), round(e - n, 3)]
+            return line
+
+        with open(summary_path, "w", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
             header = ["language", "noise_type", "snr_db", "n"]
             for m in self.metric_names:
                 header += [f"noisy_{m}", f"enhanced_{m}", f"delta_{m}"]
             writer.writerow(header)
-            for (lang, kind, snr_db), rs in sorted(groups.items()):
-                line = [lang, kind, snr_db, len(rs)]
-                for m in self.metric_names:
-                    n = np.nanmean([r[f"noisy_{m}"] for r in rs])
-                    e = np.nanmean([r[f"enhanced_{m}"] for r in rs])
-                    line += [round(n, 3), round(e, 3), round(e - n, 3)]
-                writer.writerow(line)
+            for label, group_rows in sorted(groups.items()):
+                writer.writerow(make_line(label, group_rows))
+            writer.writerow(make_line(("all", "all", "all"), rows))

@@ -3,6 +3,11 @@ scipy
 torch
 pyyaml
 pytest
-# 可选指标（装不上则自动记 NaN，不中断评测）
+pystoi
+# 16 kHz 公开镜像下载/按行组取子集
+pyarrow
+fsspec
+aiohttp
+requests
+# 可选 PESQ（Windows 无 MSVC 时装不上，自动记 NaN，不中断评测）
 # pesq
-# pystoi

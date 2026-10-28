@@ -35,3 +35,13 @@ def pesq(clean, est, **kw):
         return float("nan")  # 可选依赖，缺失时记 NaN 而不是中断评测
     ref, est = _align(np.asarray(clean), np.asarray(est))
     return float(_pesq(16000, ref, est, "wb"))
+
+
+@METRICS.register("stoi")
+def stoi(clean, est, **kw):
+    try:
+        from pystoi import stoi as _stoi
+    except ImportError:
+        return float("nan")
+    ref, est = _align(np.asarray(clean), np.asarray(est))
+    return float(_stoi(ref, est, 16000, extended=False))
