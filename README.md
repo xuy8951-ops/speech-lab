@@ -5,6 +5,12 @@
 > 当前进度：**S2 真实数据 pilot 已完成**（VoiceBank-DEMAND、冻结测试 manifest、验证早停、824 条正式评测）。
 > 路线图：全量 VoiceBank 训练 → S3 中英文落差实验（主创新）→ M4 阵列 → M6 水声迁移。
 
+## 文档导航
+
+- [项目说明书](docs/PROJECT_MANUAL.md)：项目目标、架构、已完成成果、实验结果与当前限制。
+- [零基础入门教程](docs/BEGINNER_GUIDE.md)：从语音增强的基本概念开始，逐步学习安装、运行和读懂结果。
+- [轻量优化建议](docs/SMALL_IMPROVEMENTS.md)：不重写架构的小改进，优先提升试听、展示和日常使用体验。
+
 ## 快速开始
 
 ```bash
